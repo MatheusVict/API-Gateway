@@ -4,13 +4,15 @@ import { AllExecptionsFilter } from './filters/http-execption-filter';
 import * as momentTimeZone from 'moment-timezone';
 import { LoggingInterceptor } from './interceptors/logging.interceptors';
 import { TimeOutInterceptor } from './interceptors/timeout.interceptor';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalFilters(new AllExecptionsFilter());
 
   app.useGlobalInterceptors(new LoggingInterceptor(), new TimeOutInterceptor()); // Intercepta as requisições
-  app.useGlobalFilters(new AllExecptionsFilter());
+
+  app.useGlobalPipes(new ValidationPipe());
 
   Date.prototype.toJSON = function (): any {
     return momentTimeZone(this)
