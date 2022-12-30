@@ -28,13 +28,13 @@ export class PlayersController {
   @Post()
   async createPlayer(@Body() data: CreatePlayerDTO) {
     this.logger.log(`createPLayer: ${JSON.stringify(data)}`);
-    /*const category = await lastValueFrom(
+    const category = await lastValueFrom(
       this.clientAdminBackend.send('pegar-categoria', data.category),
-    );*/
+    );
 
-    const category = await this.clientAdminBackend
+    /*const category = await this.clientAdminBackend
       .send('pegar-categoria', data.category)
-      .toPromise();
+      .toPromise();*/
 
     if (category) this.clientAdminBackend.emit('criar-jogador', data);
     else throw new BadRequestException('Categoria não encontrada');
@@ -49,13 +49,13 @@ export class PlayersController {
   }
 
   @Put(':id')
-  async updatePlayer(@Param('id') id: string, @Body() data: UpdatePlayerDTO) {
-    const category = await this.clientAdminBackend
-      .send('pegar-categoria', data.category)
-      .toPromise();
+  async updatePlayer(@Param('id') id: string, @Body() body: UpdatePlayerDTO) {
+    const category = await lastValueFrom(
+      this.clientAdminBackend.send('pegar-categoria', body.category),
+    );
 
     if (category)
-      this.clientAdminBackend.emit('atualizar-jogador', { id, data });
+      this.clientAdminBackend.emit('atualizar-jogador', { id, body });
     else throw new BadRequestException('Categoria não encontrada');
   }
 
