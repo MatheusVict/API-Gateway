@@ -1,16 +1,20 @@
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class UpdatePlayerDTO {
-  @IsNotEmpty()
+  /*@IsNotEmpty()
   @IsString()
   phoneNumber: string;
 
   @IsNotEmpty()
   @IsString()
   @IsEmail()
-  email: string;
+  email: string;*/
 
   @IsNotEmpty()
   @IsString()
-  category: string;
+  @IsOptional()
+  category?: string;
+
+  @IsOptional()
+  urlPicPlayer?: string;
 }
