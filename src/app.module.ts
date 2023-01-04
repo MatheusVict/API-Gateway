@@ -5,14 +5,20 @@ import { CategoriesModule } from './categories/categories.module';
 import { PlayersModule } from './players/players.module';
 import { ProxymqModule } from './proxymq/proxymq.module';
 import { AwsS3Module } from './aws-s3/aws-s3.module';
+import { ChallengesModule } from './challenges/challenges.module';
+import { MulterModule } from '@nestjs/platform-express';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
+    MulterModule.register({
+      dest: './uploads',
+    }),
     CategoriesModule,
     PlayersModule,
     ProxymqModule,
     AwsS3Module,
+    ChallengesModule,
   ],
   controllers: [AppController],
   providers: [],

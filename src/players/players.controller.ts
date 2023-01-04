@@ -15,7 +15,7 @@ import {
 } from '@nestjs/common';
 import { ClientProxySmartRanking } from 'src/proxymq/client-proxy.proxymq';
 import { CreatePlayerDTO } from './dto/create-player.dto';
-import { Observable } from 'rxjs';
+import { Observable, firstValueFrom } from 'rxjs';
 import { UpdatePlayerDTO } from './dto/update-player.dto';
 import { lastValueFrom } from 'rxjs';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -51,20 +51,23 @@ export class PlayersController {
   /* Feature add picture for player */
   @Post(':id/upload')
   @UseInterceptors(FileInterceptor('file')) // 2 argumentos string com o nome do campo do formulario q vai conter o arquivo
-  async uploadFile(@UploadedFile() file: any, @Param('id') id: string) {
+  async uploadFile(
+    @UploadedFile() file: Express.Multer.File,
+    @Param('id') id: string,
+  ) {
     //Verificar se o jogador realmente existe
-    const player = await lastValueFrom(
+    const player = await firstValueFrom(
       this.clientAdminBackend.send('consultar-jogador', id),
     );
 
     if (!player) throw new NotFoundException('Jogador não encontrado');
 
-    //Enviar para o s3 e recuperar a url de acesso
-    const urlPicPlayer = await this.awsS3Service.uploadFile(file, id);
+    //Enviar e recuperar a url de acesso
+    const urlPicPlayer = await this.awsS3Service.uploadFile(file);
 
     //Atualizar o atributo url da Entidade player
     const updatePlayerDTO: UpdatePlayerDTO = {};
-    updatePlayerDTO.urlPicPlayer = urlPicPlayer.url;
+    updatePlayerDTO.urlPicPlayer = urlPicPlayer.urlPic;
 
     await lastValueFrom(
       this.clientAdminBackend.emit('atualizar-jogador', {
