@@ -6,7 +6,7 @@ export class AwsS3Service {
 
   async uploadFile(file: Express.Multer.File) {
     const objectPic = {
-      urlPic: `http://localhost:8081/api/v1/category/${file.filename}`,
+      urlPic: `http://localhost:8081/image/player/${file.filename}`,
       fileNameSaveInMemory: file.filename,
       size: `${file.size}KB`,
       originalName: file.originalname,

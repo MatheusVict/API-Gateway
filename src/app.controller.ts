@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 
-@Controller('api/v1/category')
+@Controller('image/player')
 export class AppController {
   private readonly logger = new Logger(AppController.name);
 

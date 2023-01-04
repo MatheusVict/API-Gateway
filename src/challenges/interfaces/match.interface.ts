@@ -5,7 +5,7 @@ export interface MatchInterface {
   challenge?: string;
   players?: PlayerInterface[];
   def?: PlayerInterface;
-  result: Result[];
+  result?: Result[];
 }
 
 export interface Result {

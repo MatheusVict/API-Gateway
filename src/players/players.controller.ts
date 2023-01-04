@@ -36,7 +36,7 @@ export class PlayersController {
   @Post()
   async createPlayer(@Body() data: CreatePlayerDTO) {
     this.logger.log(`createPLayer: ${JSON.stringify(data)}`);
-    const category = await lastValueFrom(
+    const category = await firstValueFrom(
       this.clientAdminBackend.send('pegar-categoria', data.category),
     );
 

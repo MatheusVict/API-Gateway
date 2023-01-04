@@ -2,14 +2,25 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
+  Get,
   Logger,
   NotFoundException,
+  Param,
   Post,
+  Put,
+  Query,
 } from '@nestjs/common';
 import { ClientProxySmartRanking } from 'src/proxymq/client-proxy.proxymq';
 import { CreateChallengesDTO } from './dto/create-challenges.dto';
 import { PlayerInterface } from 'src/players/interfaces/player.interface';
 import { firstValueFrom } from 'rxjs';
+import { ChallengeInterface } from './interfaces/challenges.interface';
+import { ChallengeStatus } from './interfaces/challenge-status.enum';
+import { UpdateChallengeDTO } from './dto/update-challenge.dto';
+import { AddChallengeForMatch } from './dto/add-player-for-match.dto';
+import { CategoriesInterface } from 'src/categories/interfaces/categories.interface';
+import { MatchInterface } from './interfaces/match.interface';
 
 @Controller('challenges')
 export class ChallengesController {
@@ -26,11 +37,11 @@ export class ChallengesController {
   private readonly logger = new Logger(ChallengesController.name);
 
   @Post()
-  async createChallenge(@Body() challenge: CreateChallengesDTO) {
+  async createChallenge(@Body() challenge: CreateChallengesDTO): Promise<void> {
     // Verificar se os jogadores estão cadastrados
-    const players: PlayerInterface[] = await this.clientAdminBackend
-      .send('consultar-jogador', '')
-      .toPromise();
+    const players: PlayerInterface[] = await firstValueFrom(
+      this.clientAdminBackend.send('consultar-jogador', ''),
+    );
 
     challenge.players.map((playerDto) => {
       const playersFilter: PlayerInterface[] = players.filter(
@@ -66,12 +77,125 @@ export class ChallengesController {
 
     // Verifica se a categoria está cadastrada
 
-    const category = await firstValueFrom(
+    const category: CategoriesInterface = await firstValueFrom(
       this.clientAdminBackend.send('pegar-categoria', challenge.category),
     );
 
     if (!category) throw new NotFoundException('Categoria não encontrada');
 
     this.clientChllenges.emit('criar-desafio', challenge);
+  }
+
+  // Consultar desafios de um jogador
+  @Get()
+  async getCategories(@Query('idplayer') idplayer: string): Promise<any> {
+    if (idplayer) {
+      const player: PlayerInterface = await firstValueFrom(
+        this.clientAdminBackend.send('consultar-jogador', idplayer),
+      );
+      this.logger.log(JSON.stringify(player));
+      if (!player) throw new NotFoundException('Jogador não encontrado');
+    }
+
+    /*
+      ** Regras do endpoint do topico "consultar-desafio" **
+
+      - Se preencher o idplayer a consulta será pelo id do jogador
+      - Se preencher o _id a consulta será pelo id do desafio
+      - Se não preencher nada retorna todos os desafios
+    */
+
+    return await firstValueFrom(
+      this.clientChllenges.send('consultar-desafio', {
+        idplayer,
+        _id: '',
+      }),
+    );
+  }
+
+  @Put('idchallenge')
+  async updateChallenge(
+    @Param('idchallenge') idchallenge: string,
+    @Body() challengeBody: UpdateChallengeDTO,
+  ) {
+    const challenge: ChallengeInterface = await firstValueFrom(
+      this.clientChllenges.send('consultar-desafio', {
+        idplayer: '',
+        _id: idchallenge,
+      }),
+    );
+
+    if (!challenge) throw new NotFoundException('Desafio não encontrado');
+
+    if (challenge.status != ChallengeStatus.PENDENTE)
+      throw new BadRequestException(
+        'Os desafios só podem ser atualizados se ainda estiverem com status pendente',
+      );
+
+    await this.clientChllenges
+      .emit('atualizar-desafio', {
+        idchallenge,
+        challengeBody,
+      })
+      .toPromise();
+  }
+
+  @Post(':challenge/macth')
+  async assignChallengeToMatch(
+    @Param('challenge') challengeId: string,
+    @Body() challengeToMatch: AddChallengeForMatch,
+  ) {
+    const challenge: ChallengeInterface = await firstValueFrom(
+      this.clientChllenges.send('consultar-desafio', {
+        idplayer: '',
+        _id: challengeId,
+      }),
+    );
+
+    if (!challenge) throw new NotFoundException('Desafio não encontrado');
+
+    if (challenge.status == ChallengeStatus.REALIZADO)
+      throw new BadRequestException(
+        'Não se pode associar desafios já realizados à partidas',
+      );
+
+    if (challenge.status !== ChallengeStatus.ACEITO)
+      throw new BadRequestException(
+        'Somente desafios aceitos podem ser acoessiados à partidas',
+      );
+
+    if (!challenge.players.includes(challengeToMatch.def))
+      throw new BadRequestException(
+        'O jogador vencedor deve fazer parte do desafio',
+      );
+
+    /*
+     Cria o objeto partida a partir das informações recebidas, automatiizando tuo
+     */
+
+    const match: MatchInterface = {};
+    match.category = challenge.category;
+    match.def = challengeToMatch.def;
+    match.challenge = challengeId;
+    match.players = challenge.players;
+    match.result = challengeToMatch.result;
+
+    /*
+      Envia a partida para o tópico "criar-partida"
+      responsável por atribui a partida ao banco
+    */
+
+    this.clientChllenges.emit('criar-partida', match);
+  }
+
+  @Delete(':idchallenge')
+  async deleteChallenge(@Param('idchallenge') idchallenge: string) {
+    const challenge: ChallengeInterface = await firstValueFrom(
+      this.clientChllenges.send('consultar-desafio', idchallenge),
+    );
+
+    if (!challenge) throw new NotFoundException('Desafio não encontrado');
+
+    this.clientChllenges.emit('deletar-desafio', idchallenge);
   }
 }

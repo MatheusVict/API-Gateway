@@ -2,7 +2,7 @@ import { IsNotEmpty } from 'class-validator';
 import { PlayerInterface } from 'src/players/interfaces/player.interface';
 import { Result } from '../interfaces/match.interface';
 
-export class AddPlayerForMatch {
+export class AddChallengeForMatch {
   @IsNotEmpty()
   def: PlayerInterface;
 
