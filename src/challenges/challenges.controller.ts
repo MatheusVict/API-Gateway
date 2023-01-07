@@ -14,7 +14,7 @@ import {
 import { ClientProxySmartRanking } from 'src/proxymq/client-proxy.proxymq';
 import { CreateChallengesDTO } from './dto/create-challenges.dto';
 import { PlayerInterface } from 'src/players/interfaces/player.interface';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { ChallengeInterface } from './interfaces/challenges.interface';
 import { ChallengeStatus } from './interfaces/challenge-status.enum';
 import { UpdateChallengeDTO } from './dto/update-challenge.dto';
@@ -105,15 +105,15 @@ export class ChallengesController {
       - Se não preencher nada retorna todos os desafios
     */
 
-    return await firstValueFrom(
+    return await lastValueFrom(
       this.clientChllenges.send('consultar-desafio', {
-        idplayer,
+        idplayer: idplayer,
         _id: '',
       }),
     );
   }
 
-  @Put('idchallenge')
+  @Put(':idchallenge')
   async updateChallenge(
     @Param('idchallenge') idchallenge: string,
     @Body() challengeBody: UpdateChallengeDTO,
@@ -140,9 +140,9 @@ export class ChallengesController {
       .toPromise();
   }
 
-  @Post(':challenge/macth')
+  @Post(':challengeId/macth')
   async assignChallengeToMatch(
-    @Param('challenge') challengeId: string,
+    @Param('challengeId') challengeId: string,
     @Body() challengeToMatch: AddChallengeForMatch,
   ) {
     const challenge: ChallengeInterface = await firstValueFrom(
@@ -164,11 +164,6 @@ export class ChallengesController {
         'Somente desafios aceitos podem ser acoessiados à partidas',
       );
 
-    if (!challenge.players.includes(challengeToMatch.def))
-      throw new BadRequestException(
-        'O jogador vencedor deve fazer parte do desafio',
-      );
-
     /*
      Cria o objeto partida a partir das informações recebidas, automatiizando tuo
      */
@@ -185,13 +180,13 @@ export class ChallengesController {
       responsável por atribui a partida ao banco
     */
 
-    this.clientChllenges.emit('criar-partida', match);
+    await this.clientChllenges.emit('criar-partida', match).toPromise();
   }
 
   @Delete(':idchallenge')
   async deleteChallenge(@Param('idchallenge') idchallenge: string) {
     const challenge: ChallengeInterface = await firstValueFrom(
-      this.clientChllenges.send('consultar-desafio', idchallenge),
+      this.clientChllenges.send('consultar-denoAck: false,safio', idchallenge),
     );
 
     if (!challenge) throw new NotFoundException('Desafio não encontrado');

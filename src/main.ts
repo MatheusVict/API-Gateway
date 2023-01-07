@@ -12,7 +12,12 @@ async function bootstrap() {
 
   app.useGlobalInterceptors(new LoggingInterceptor(), new TimeOutInterceptor()); // Intercepta as requisições
 
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
 
   Date.prototype.toJSON = function (): any {
     return momentTimeZone(this)

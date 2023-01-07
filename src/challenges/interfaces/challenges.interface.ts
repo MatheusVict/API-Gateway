@@ -1,7 +1,7 @@
 import { PlayerInterface } from 'src/players/interfaces/player.interface';
 import { ChallengeStatus } from './challenge-status.enum';
 
-export class ChallengeInterface {
+export interface ChallengeInterface {
   DateTimeChallenge: Date;
   status: ChallengeStatus;
   DateTimeRequest: Date;
