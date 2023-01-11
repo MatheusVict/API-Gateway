@@ -7,6 +7,7 @@ import { ProxymqModule } from './proxymq/proxymq.module';
 import { AwsS3Module } from './aws-s3/aws-s3.module';
 import { ChallengesModule } from './challenges/challenges.module';
 import { MulterModule } from '@nestjs/platform-express';
+import { RankingsModule } from './rankings/rankings.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { MulterModule } from '@nestjs/platform-express';
     ProxymqModule,
     AwsS3Module,
     ChallengesModule,
+    RankingsModule,
   ],
   controllers: [AppController],
   providers: [],

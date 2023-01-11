@@ -27,4 +27,14 @@ export class ClientProxySmartRanking {
       },
     });
   }
+
+  getClientProxyRankingInstance(): ClientProxy {
+    return ClientProxyFactory.create({
+      transport: Transport.RMQ,
+      options: {
+        urls: [process.env.AWS_RABBITMQ],
+        queue: 'rankings',
+      },
+    });
+  }
 }
