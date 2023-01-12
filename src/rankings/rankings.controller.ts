@@ -20,18 +20,19 @@ export class RankingsController {
   private readonly logger = new Logger(RankingsController.name);
 
   @Get()
-  getRankings(
+  async getRankings(
     @Query('idCategory') idCategory: string,
-    @Query('dataRef')
-    dataRef: string /*Data de referência para consulta do ranking */,
-  ): Observable<any> {
+    @Query('dataRef') dataRef: string,
+  ): Promise<any> /*Data de referência para consulta do ranking */ {
     if (!idCategory) {
       throw new BadRequestException('O id da categoria é obrigatório');
     }
 
-    return this.clientRankings.send('consultar-rankings', {
-      idCategory,
-      dataRef: dataRef ? dataRef : '',
-    });
+    return await this.clientRankings
+      .send('consultar-rankings', {
+        idCategory: idCategory,
+        dataRef: dataRef ? dataRef : '',
+      })
+      .toPromise();
   }
 }
