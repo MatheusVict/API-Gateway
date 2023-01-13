@@ -3,6 +3,7 @@ import { PlayersController } from './players.controller';
 import { ProxymqModule } from 'src/proxymq/proxymq.module';
 import { AwsS3Module } from 'src/aws-s3/aws-s3.module';
 import { MulterModule } from '@nestjs/platform-express';
+import { PlayersService } from './players.service';
 
 @Module({
   imports: [
@@ -11,5 +12,6 @@ import { MulterModule } from '@nestjs/platform-express';
     MulterModule.register({ dest: './uploads' }),
   ],
   controllers: [PlayersController],
+  providers: [PlayersService],
 })
 export class PlayersModule {}
