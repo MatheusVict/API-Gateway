@@ -8,12 +8,15 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { CreateChallengesDTO } from './dto/create-challenges.dto';
 import { UpdateChallengeDTO } from './dto/update-challenge.dto';
 import { AddChallengeForMatch } from './dto/add-player-for-match.dto';
 import { ChallengesService } from './challenges.service';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('challenges')
 export class ChallengesController {
   constructor(private readonly challengesService: ChallengesService) {}

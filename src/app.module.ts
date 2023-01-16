@@ -8,6 +8,7 @@ import { AwsS3Module } from './aws-s3/aws-s3.module';
 import { ChallengesModule } from './challenges/challenges.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { RankingsModule } from './rankings/rankings.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { RankingsModule } from './rankings/rankings.module';
     AwsS3Module,
     ChallengesModule,
     RankingsModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [],
