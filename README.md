@@ -189,7 +189,7 @@ yarn test or npm run test
   ```
   
 ### Rankings:
-- Get: ```/rankings/?idCategory={ID da categoria}&dataRef={Data de referência para consulta no ranking}```
+- Get: ```/rankings/?idCategory={ID da categoria}&dataRef={Data de referência para consulta no ranking```
   > Consulta
   - idCategory é obrigatorio
   - dataRef é opcional(se não informado a data atual será preenchida)
