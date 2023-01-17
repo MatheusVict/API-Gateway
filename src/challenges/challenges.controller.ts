@@ -42,7 +42,7 @@ export class ChallengesController {
     await this.challengesService.updateChallenge(idchallenge, challengeBody);
   }
 
-  @Post(':challengeId/macth')
+  @Post(':challengeId/match')
   async assignChallengeToMatch(
     @Param('challengeId') challengeId: string,
     @Body() challengeToMatch: AddChallengeForMatch,

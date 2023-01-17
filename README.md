@@ -1,73 +1,197 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# API gateway
+### api que faz a conexão entre os microserviços e o cliente, com uma aplicação de rankings inteligentes para jogadores de Tennis 
+### microserviços:
+- [Micro admin Back End](https://github.com/MatheusVict/micro-admin-backend) (responsável pelos jogadores e suas categorias)
+- [Micro challenges](https://github.com/MatheusVict/micro-challenges) (responsável pelos desafios e partidas)
+- [Micro rankings](https://github.com/MatheusVict/Micro-ranking) (responsável pela estruturação e criação de rankings de acordo com a categoria)
+- [Micro notifications](https://github.com/MatheusVict/Micro-Notificacoes) (responsável por notificar o adversário do desafiante)
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+### Informações importantes:
+  ```ruby
+  node: v18.12.1
+  nest: 9.1.4
+  RabbitMQ 3.11.6
+  ```
+ - Crie uma arquivo .env seguindo o arquivo .env.example
+    - AWS_RABBITMQ= string de conexão com RabbitMQ
+    - JWT_PRIVATE_KEY= Chave privada JWT
+    - JWT_EXPERIATION_TIME_TOKEN= Tempo de expiração do token
+    - PORT_APP= Porta da aplicação
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+### Comandos:
+#### Iniciação do projeto no modo watch
 
-## Description
+```ruby
+yarn start:dev or npm run start:dev
+```
+#### Build para JavaScript
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Installation
-
-```bash
-$ npm install
+```ruby
+yarn build or npm run build
 ```
 
-## Running the app
+#### Teste da aplicação(ainda sendo finalizado)
 
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+```ruby
+yarn test or npm run test
 ```
 
-## Test
+> OBS: para funcionar é preciso que todos os microserviços estejam rodando(se utilizando do mesmo comando de iniciação citado acima)
 
-```bash
-# unit tests
-$ npm run test
+## Rotas:
 
-# e2e tests
-$ npm run test:e2e
+### Auth:
+- Post: ```/auth/login```
+  > Autenticação
+  - Body: 
+  ```ruby
+  {
+    "email": "email de um jogador registrado(criação de jogadores não precisa de autenticação)",
+    "password": "Informe qualquer valor pois a feature de usuário ainda está sendo implementada"
+  }
+  ```
+  - Irá receber um token, passe-o nas rotas através do Bearer Token
 
-# test coverage
-$ npm run test:cov
-```
+### Categorias:
 
-## Support
+- Post: ```/categories```
+  > Criação
+  - Body: 
+  ```ruby
+   {
+	"category": "Nome da categoria",
+	"description": "",
+	"events": [{
+		"name": "VITORIA",
+		"operetion": "+",
+		"value": Pontos ganhos: Number
+	},
+	{
+		"name": "DERROTA",
+		"operetion": "-",
+		"value": Pontos perdidos: Number
+	}]
+  }
+  ```
+  
+- Get: ```/categories?idCategory={ID da categoria}```
+   > Busca
+  - Se passado retorna a categoria desejada
+  - Se não retorna todas
+  
+- Put: ```/categories/{ID da categoria}```
+  > Atualização
+  - Body: 
+  ```ruby
+   {
+	"category": "Nome da categoria",
+	"description": "",
+	"events": [{
+		"name": "VITORIA",
+		"operetion": "+",
+		"value": Pontos ganhos: Number
+	},
+	{
+		"name": "DERROTA",
+		"operetion": "-",
+		"value": Pontos perdidos: Number
+	}]
+  }
+  ```
+  
+- Delete: ```/categories/{ID da categori}```
+  > Deleção
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
 
-## Stay in touch
+### Jogadores:
+- Post: ```/players```
+  > Criação
+  - Body:
+  ```ruby
+  {
+	"phoneNumber": "",
+	"email": "",
+	"name": "",
+	"category": "ID da categoria"
+  }
+  ```
+  
+- Get: ```/players?idplayer={ID do jogador}```
+  > Busca
+  - Se passado retorna o jogador desejado
+  - Se não retorna todos
+  
+- Put: ```/players/{ID do jogador}```
+  > Atualização
+  - Body
+  ```ruby
+  {
+	"phoneNumber": "",
+	"email": "",
+	"category": "ID da categoria"
+  }
+  ```
+- Delete: ```/players/{ID do jogador}```
+  > Deleção
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- Post: ```/players/{ID do jogador}/upload```
+  > Associar foto a usuários
+  -Body: ```File```
+  
+### Desafios:
+- Post: ```/challenges```
+  > Criação
+  - Body: 
+  ```ruby
+  {
+    "DateTimeChallenge": "2023-01-12T09:00:00",
+    "requester": "ID do jogador que solicitou o desafio",
+    "category": "ID da categoria",
+    "players": [
+    {
+      "_id": "ID do jogador"
+    },
+    {
+       "_id": "ID do jogador"
+    }]
+  }
+  ```
+  
+- Get: ```/challenges/?idplayer={ID do jogador}```
+  > Busca
+  - Se passado retorna todos os desafios do usuário
+  - Se não retorna todos os desafios
 
-## License
+- Put: ```/challenges/{ID do desafio}```
+  > Atualização
+  - Body: 
+  ```ruby
+  {
+    "status": "Status da resposta, ACEITO ou NEGADO"
+  }
+  ```
+  
+- Delete: ```/challenges/{ID do desafio}```
+  > Deleção
+  
+- Post: ```/challenges/{ID do desafio}/match```
+  > Associar um partida um desafio
+  - Body: 
+  ```ruby
+  {
+    "def": "ID do vencedor",
+    "result": [{
+      "set": "6-4"
+    },{
+      "set": "6-3"
+    }]
+  }
+  ```
+  
+### Rankings:
+- Get: ```/rankings/?idCategory={ID da categoria}&dataRef={Data de referência para consulta no ranking}```
+  > Consulta
+  - idCategory é obrigatorio
+  - dataRef é opcional(se não informado a data atual será preenchida)
 
-Nest is [MIT licensed](LICENSE).
+

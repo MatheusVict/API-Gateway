@@ -18,6 +18,6 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen(8081);
+  await app.listen(process.env.PORT_APP);
 }
 bootstrap();
